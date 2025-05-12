@@ -123,7 +123,33 @@ def resize_to_9_16(clip):
 # --------------- COMBINE AUDIO & VIDEO ----------------
 def combine_clips(video_clip, audio_path):
     audio = AudioFileClip(audio_path)
+    
+    # If video_clip is None, we need to handle longer audio by combining multiple gameplay clips
+    if video_clip is None:
+        # For longer audio, stitch together multiple gameplay clips
+        total_duration = audio.duration
+        combined_clips = []
+        remaining_duration = total_duration
+        
+        while remaining_duration > 0:
+            # Get a clip for each segment (up to 30s each)
+            segment_duration = min(remaining_duration, 30.0)
+            segment_clip = get_random_gameplay_clip(segment_duration)
+            segment_clip = segment_clip.set_duration(segment_duration)
+            combined_clips.append(segment_clip)
+            remaining_duration -= segment_duration
+        
+        # Concatenate all clips
+        from moviepy.editor import concatenate_videoclips
+        video_clip = concatenate_videoclips(combined_clips)
+    else:
+        # If audio is longer than video, extend video to audio's duration
+        if audio.duration > video_clip.duration:
+            video_clip = video_clip.set_duration(audio.duration)
+
+    # Set the final duration
     duration = min(audio.duration, video_clip.duration)
+    
     trimmed_video = video_clip.subclip(0, duration)
     trimmed_audio = audio.subclip(0, duration)
     return trimmed_video.set_audio(trimmed_audio), duration
@@ -151,20 +177,25 @@ if __name__ == "__main__":
     try:
         # Load speech to determine exact duration
         speech_audio = AudioFileClip(speech_path)
-        exact_duration = min(speech_audio.duration, 30.0)
-
-        # Load gameplay to match speech
-        gameplay_clip = get_random_gameplay_clip(exact_duration + 1.3)
-
-        # Combine
+        
+        # For audio <= 30 seconds, use original logic
+        if speech_audio.duration <= 30.0:
+            gameplay_clip = get_random_gameplay_clip(speech_audio.duration + 1.3)
+        else:
+            # For longer audio, just pass None as video_clip
+            gameplay_clip = None
+            print(f"\n⚠️ Audio duration: {speech_audio.duration:.1f}s - Will combine multiple gameplay clips")
+        
+        # Combine clips (function will handle long audio appropriately)
         final_clip, actual_duration = combine_clips(gameplay_clip, speech_path)
         final_clip = resize_to_9_16(final_clip)
-
+        
         # Output
         output_file = os.path.join(OUTPUT_FOLDER, f"{title}.mp4")
         final_clip.write_videofile(output_file, codec='libx264', audio_codec='aac',
                                    temp_audiofile='temp-audio.m4a', remove_temp=True)
-
+        
         print(f"\n✅ DONE. Video saved as: {output_file}")
+        print(f"   Final duration: {actual_duration:.1f} seconds")
     except Exception as e:
         print(f"💥 ERROR: {e}")
