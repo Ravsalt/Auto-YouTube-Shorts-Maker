@@ -1,75 +1,113 @@
-# Auto YouTube Shorts Maker
+# 🎥 Auto YouTube Shorts Maker
 
-🤖 Automatically generate YouTube shorts simply by running the script!
+## 🚀 Project Overview
 
-## Description
-This script automates the creation of YouTube shorts, from generating a script and voiceover to editing the video. It's designed to be fast and easy to use.
+Automatically generate engaging 30-second educational YouTube Shorts using AI-powered script generation, text-to-speech, and dynamic gameplay footage.
 
-## Table of Contents
-- [Installation](#installation)
-- [Usage](#usage)
-- [How it Works](#how-it-works)
-- [Contributing](#contributing)
-- [License](#license)
-- [Built Using](#built-using)
+## ✨ Key Features
 
-## Installation
+- 🤖 AI-Driven Content Generation
+- 🎙️ Automatic Text-to-Speech
+- 🎮 Dynamic Video Composition
+- 📱 Optimized Vertical Video Format
 
-### Prerequisites
-1.  **Python 3.x**
-2.  **Pip** (Python package installer)
-3.  **Requests** - `pip install requests`
-4.  **MoviePy** - `pip install moviepy`
-5.  **Unidecode** - `pip install unidecode` (Often a dependency of other libraries, but good to ensure it's available for `unicodedata.normalize`)
+## 🛠️ Prerequisites
 
-### Installing
-1.  Clone this repository or download it as a zip file.
-    ```bash
-    git clone https://github.com/Ravsalt/Auto-YouTube-Shorts-Maker.git
-    cd Auto-YouTube-Shorts-Maker
-    ```
-2.  Install the required Python modules:
-    ```bash
-    pip install requests moviepy unidecode
-    ```
-    (Alternatively, a `requirements.txt` could be created and used with `pip install -r requirements.txt`)
-3.  Create a folder named `templates` in the project directory.
-4.  Add your gameplay video clips to the `templates` folder. These files should be named following the pattern `short_*.mp4` (e.g., `short_gameplay1.mp4`, `short_cool_moment.mp4`). The script will randomly pick one of these for each short.
-5.  Create a folder named `generated` in the project directory. This is where the output videos will be saved.
+- Python 3.8+
+- FFmpeg
+- Internet Connection
 
-## Usage
+## 📦 Quick Start
 
-To use this script:
-1.  Run the `shorts.py` Python file:
-    ```bash
-    python shorts.py
-    ```
-2.  When prompted, enter the topic or theme for your short.
-3.  The script will then:
-    *   Generate a script and voiceover using the Pollinations AI text-to-speech service.
-    *   Select a random gameplay clip from your `templates` folder.
-    *   Combine the audio and video.
-    *   Resize the video to a 9:16 aspect ratio.
-4.  Your completed short will be saved in the `generated/` directory with a title based on your theme.
+1. Clone the repository:
+```bash
+git clone https://github.com/Ravsalt/Auto-YouTube-Shorts-Maker.git
+cd Auto-YouTube-Shorts-Maker
+```
 
-## How it Works
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-### 1. Theme Input
-The script starts by asking for a theme for the YouTube Short.
+3. Prepare Templates:
+- Create `templates/` directory
+- Add gameplay clips (`short_*.mp4`)
+- Create `generated/` output directory
 
-### 2. Script & Speech Generation
-Using the provided theme, the script interacts with the Pollinations AI API to:
-    *   Generate a "rage-explain" style script.
-    *   Synthesize this script into an audio voiceover (MP3).
-    The generated script is also printed to the console. If the API call fails, you'll be prompted to enter the script manually.
+## 🎬 Workflow
 
-### 3. Video Assembly
-    *   **Gameplay Selection**: A random gameplay video (matching `short_*.mp4`) is chosen from the `templates/` directory. A random segment of this clip is selected, matching the duration of the generated audio (up to 30 seconds).
-    *   **Combining Clips**: The generated audio is combined with the selected gameplay video clip.
-    *   **Resizing**: The combined video is resized to a 9:16 aspect ratio, suitable for YouTube Shorts.
+### 1. Topic Input
+- Enter educational topic
+- AI generates concise 30-second script
+
+### 2. Script Generation
+- Transforms topic into engaging narrative
+- Focuses on clarity and insight
+- Creates natural educational content
+
+### 3. Video Composition
+- Randomly selects gameplay clip
+- Synchronizes audio and video
+- Resizes to vertical format
 
 ### 4. Output
-The final video is saved in the `generated/` folder with a filename derived from the input theme (e.g., `Your_Theme_Here.mp4`).
+- Saves video in `generated/`
+- Filename based on input topic
+
+## 🔧 Customization
+
+- Modify `TEMPLATE_FOLDER` for clip sources
+- Adjust `OUTPUT_FOLDER` for exports
+
+## 🔮 Roadmap
+
+- [ ] Multi-language support
+- [ ] Custom voice options
+- [ ] Enhanced clip selection
+- [ ] YouTube upload automation
+
+## 🤝 Contributing
+
+1. Fork repository
+2. Create feature branch
+3. Commit changes
+4. Push to branch
+5. Create Pull Request
+
+## 🐛 Troubleshooting
+
+- Verify FFmpeg installation
+- Check internet connectivity
+- Validate gameplay clip formats
+
+
+
+### 1. Topic Selection
+- Prompt user to enter an educational topic
+- Topic serves as the foundation for content generation
+
+### 2. Intelligent Script Creation
+- AI-powered script generation using Pollinations API
+- Transforms topic into concise, engaging 30-second narrative
+- Focuses on clear, informative content
+- Handles fallback to manual script input if API fails
+
+### 3. Multimedia Composition
+- **Audio Generation**: 
+  - Converts script to natural text-to-speech
+  - Creates MP3 voiceover
+
+- **Video Integration**:
+  - Randomly selects gameplay clip from `templates/`
+  - Synchronizes audio with full video clip
+  - Resizes to 9:16 vertical format
+
+### 4. Content Optimization
+- Ensures video duration matches audio length
+- Generates title based on input topic
+- Saves final video in `generated/` directory
+
 
 ## Contributing
 
@@ -79,9 +117,7 @@ Potential future enhancements:
 *   More sophisticated video editing options.
 *   Support for different TTS voices or services.
 
-## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Built Using
 
