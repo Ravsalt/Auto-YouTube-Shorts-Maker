@@ -7,7 +7,7 @@ import unicodedata
 import glob
 from moviepy.editor import VideoFileClip, AudioFileClip
 import moviepy.video.fx.crop as crop_vid
-import json
+
 
 # -------------------------- CONFIGS --------------------------
 TEMPLATE_FOLDER = "templates"
@@ -31,26 +31,24 @@ def clean_script(text):
 
 
 # ------------------ TEXT TO SPEECH WITH SCRIPT GENERATION -------------------
-def generate_short_title(theme):
+def generate_short_title(topic):
     # Remove common words and keep it concise
-    words = theme.split()
+    words = topic.split()
     # Keep first 2-3 words, remove stop words
     stop_words = {'the', 'a', 'an', 'in', 'on', 'at', 'to', 'for', 'of', 'with'}
     title_words = [word for word in words if word.lower() not in stop_words][:3]
     # Capitalize and join
     return '_'.join(word.capitalize() for word in title_words)[:30]
 
-def synthesize_speech_post(theme, out_path):
-    # Clean and prepare the theme
-    cleaned_theme = clean_script(theme)
+def synthesize_speech_post(topic, out_path):
+    # Clean and prepare the topic
+    cleaned_topic = clean_script(topic)
 
     prompt = (
-    "You’re making a TikTok Short (30 sec MAX) that fucks hard — it’s fast, raw, emotional, borderline psychotic, and makes people slam that like/follow out of pure fear and awe. "
-    "Curse as much as possible starts with what the fuck is {theme}. For example, 'What the fuck is ankylosing spondylitis. It's a chronic inflammatory disease that mainly attacks your mine, turning you into a stiff, creaky motherfucker over time. That bitch runs from your lower back through your ass cheeks and all the way down both legs. What the fucking shit is acid reflux? How the fuck do they replace your hip?'"
-    "NO lame-ass calls to action. Just obliterate the viewer with knowledge and chaos. "
-    "Now rage-explain like maniac with this bastard of a topic like it owes you money — "
-    ) + cleaned_theme
-
+    f"Create an engaging 30-second educational short about {topic}. "
+    "Make it informative, concise, and captivating. Explain the topic in a way that grabs the viewer's attention, "
+    "uses clear language, and provides valuable insights. The goal is to educate and entertain simultaneously."
+    ) + cleaned_topic
 
     # Encode the text for the URL
     encoded_text = urllib.parse.quote(prompt)
@@ -65,9 +63,9 @@ def synthesize_speech_post(theme, out_path):
             with open(out_path, 'wb') as f:
                 f.write(response.content)
             print(f"Audio saved successfully as {out_path}")
-            # Extract and clean the script from the response text
-            script = clean_script(response.text.strip())
-            print("\n📜 Generated Script:\n", script)
+            
+            # Try to extract script from response text
+            script = clean_script(response.text.strip()) if response.text else "No script generated."
             return script
         else:
             print("Error: Expected audio response, received:")
@@ -77,24 +75,6 @@ def synthesize_speech_post(theme, out_path):
     except requests.exceptions.RequestException as e:
         print(f"Error making TTS request: {e}")
         return None
-    encoded_text = urllib.parse.quote(text)
-    url = f"https://text.pollinations.ai/{encoded_text}?model=openai-audio&voice=nova"
-
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-
-        # Check if the response is an audio file
-        if 'audio/mpeg' in response.headers.get('Content-Type', ''):
-            with open(out_path, 'wb') as f:
-                f.write(response.content)
-            print(f"Audio saved successfully as {out_path}")
-        else:
-            print("Error: Expected audio response, received:")
-            print(f"Content-Type: {response.headers.get('Content-Type')}")
-            print(response.text)
-    except requests.exceptions.RequestException as e:
-        print(f"Error making TTS request: {e}")
 
 
 # -------------- SELECT RANDOM GAMEPLAY ----------------
@@ -104,8 +84,7 @@ def get_random_gameplay_clip(duration_limit):
         raise FileNotFoundError("No gameplay templates found in 'templates/'")
     selected = random.choice(gameplay_files)
     clip = VideoFileClip(selected)
-    start = random.randint(0, max(1, int(clip.duration - duration_limit)))
-    return clip.subclip(start, start + duration_limit)
+    return clip
 
 
 # -------------- RESIZE TO 9:16 FORMAT ----------------
@@ -160,11 +139,11 @@ if __name__ == "__main__":
     if not os.path.exists(OUTPUT_FOLDER):
         os.makedirs(OUTPUT_FOLDER)
 
-    theme = input("🎯 Enter topic for your short: ").strip()
-
+    topic = input("🎯 Enter topic for your short: ").strip()
+    print("Generating Video : ")
     # Create speech and generate script via Pollinations API
     speech_path = os.path.join(OUTPUT_FOLDER, "speech.mp3")
-    script = synthesize_speech_post(theme, speech_path)
+    script = synthesize_speech_post(topic, speech_path)
 
     if script is None:
         # Fallback to manual script input if API fails
@@ -172,7 +151,7 @@ if __name__ == "__main__":
         title = input("🎬 Enter video title: ").strip().replace(" ", "_")
     else:
         # Use the auto-generated title
-        title = generate_short_title(theme)
+        title = generate_short_title(topic)
 
     try:
         # Load speech to determine exact duration
